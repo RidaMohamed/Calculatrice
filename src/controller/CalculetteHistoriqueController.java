@@ -2,16 +2,14 @@ package controller;
 
 import model.Calculette;
 import view.ExampleView;
+import view.View2_Historique;
 
-import java.util.Observable;
-import java.util.Observer;
+public class CalculetteHistoriqueController {
 
-public class CalculetteController {
-
-    public ExampleView CalculetteView ;
+    public View2_Historique CalculetteView ;
     public Calculette CalculetteModele ;
 
-    public CalculetteController(ExampleView calculetteView, Calculette calculetteModele) {
+    public CalculetteHistoriqueController(View2_Historique calculetteView, Calculette calculetteModele) {
         this.CalculetteView = calculetteView;
         this.CalculetteModele = calculetteModele;
         this.CalculetteView.AddListener(this);

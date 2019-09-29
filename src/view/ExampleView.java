@@ -14,9 +14,11 @@ import controller.CalculetteController;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Observable;
+import java.util.Observer;
 import javax.swing.*;
 
-public class ExampleView {
+public class ExampleView implements Observer {
 
     public static final int PLUS = -100;
     public static final int MINUS = -200;
@@ -30,6 +32,7 @@ public class ExampleView {
     private JButton addButton = new JButton("+");
     private JButton equateButton = new JButton(" = ");
     private CalculetteController CalculetteController;
+    private boolean operand = false ;
 
     public ExampleView() {
         // ...
@@ -38,7 +41,6 @@ public class ExampleView {
 
     public void AddListener( CalculetteController controller ) {
         this.CalculetteController = controller;
-
     }
         public void buildFrame() {
 
@@ -100,6 +102,11 @@ public class ExampleView {
         frame.setVisible(true);
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+       textField.setText(String.valueOf( this.CalculetteController.CalculetteModele.getResultat()));
+    }
+
     class LocalListener implements ActionListener {
 
         private int digit;
@@ -113,16 +120,23 @@ public class ExampleView {
             if((digit >= 0) && (digit <= 9)){
                 System.out.println("a number is being typed");
                 if (!textField.getText().equals("0"))
-                    textField.setText(textField.getText() + String.valueOf(digit));
+                    if (operand){
+                        textField.setText(textField.getText() + String.valueOf(digit));
+                    }
+                    else{
+                        textField.setText(String.valueOf(digit));
+                        operand = true;
+                    }
                 else
                     textField.setText(String.valueOf(digit));
+                    operand = true;
             }else {
                 System.out.println("an operation symbole is being typed");
-                int ReturnedValue = CalculetteController.OnSymboleOperationClicked(digit , Integer.valueOf(textField.getText()));
-                if (ReturnedValue != Integer.MIN_VALUE){
+                /*int ReturnedValue =*/ CalculetteController.OnSymboleOperationClicked(digit , Integer.valueOf(textField.getText()));
+                /*if (ReturnedValue != Integer.MIN_VALUE){
                     textField.setText(String.valueOf(ReturnedValue));
-                }
-
+                }*/
+                operand=false;
             }
         }
 

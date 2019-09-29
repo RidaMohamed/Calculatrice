@@ -4,80 +4,133 @@ import model.operation.Addition;
 import model.operation.Soustraction;
 
 import javax.management.OperationsException;
+import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Scanner;
 
 import static view.ExampleView.*;
 
-public class Calculette {
+public class Calculette extends Observable {
+    // -----
     private int Resultat ;
-    private int ChosenOperation;
+    private int opr;
+    private int opr2;
+    private int operation;
+    private String Expression ;
+    private int operationEnCours = 0 ;
 
+    // -----
+    private ArrayList<Observer> viewArrayList;
+
+    // -----
     public Calculette() {
         this.Resultat = 0;
-        this.ChosenOperation = 0;
+        this.opr = 0;
+        this.opr2 = 0;
     }
 
-    public int calculer (int digit , int num){
-        int OperationOuNonOperation = 0;
-        String typed ;
-        int exp1 = 0;
-        int exp2;
-
-
-         //   Scanner sc = new Scanner(System.in);
-//            typed = sc.nextLine();
-                switch (digit) {
+    public void calculer (int digit , int num){
+        if (digit == EQUAL){
+            setOpr2(num);
+            switch (getOperation()){
+                case PLUS :
+                    Addition operationAddition = new Addition();
+                    operationAddition.setExp1(this.opr);
+                    operationAddition.setExp2(this.opr2);
+                    operationAddition.CalculerSomme();
+                    this.Resultat = operationAddition.getSum();
+                    break;
+                case MINUS :
+                    Soustraction operationSoustraction  = new Soustraction();
+                    operationSoustraction.setExp1(this.opr);
+                    operationSoustraction.setExp2(this.opr2);
+                    operationSoustraction.CalculerSoustraction();
+                    this.Resultat = operationSoustraction.getSoustraction();
+                    break;
+            }
+            System.out.println(Expression);
+            Expression = Expression + " " + num + " = " + this.Resultat;
+            System.out.println(Expression);
+            setChanged();
+            notifyObservers();
+        }else
+        {
+            if (operationEnCours == 0){
+                setOpr(num);
+                setOperation(digit);
+                if (digit==PLUS)
+                Expression = String.valueOf(num) +" + ";
+                else
+                    Expression = String.valueOf(num) +" - ";
+            }else {
+                setOpr2(num);
+                switch (getOperation()){
                     case PLUS :
-                        this.Resultat = num;
-                        exp1 = this.Resultat;
-                        this.ChosenOperation = 1;
-//                        Addition OperationAddition = new Addition();
-//                        OperationAddition.setExp1(exp1);
-//                        typed = sc.nextLine();
-//                        exp2 = Integer.parseInt(typed);
-//                        OperationAddition.setExp2(Integer.parseInt(typed));
-//                        OperationAddition.CalculerSomme();
-//                        this.Resultat = OperationAddition.getSum();
-//                        System.out.println(exp1 + "+" + exp2 + " = " + OperationAddition.getSum());
-//                        System.out.println("Si vous voulez mettre fin a la calculatrice tapez 1 \n" +
-//                                "sinon tapez n'importe quel num");
-                       // OperationOuNonOperation = sc.nextInt();
-
+                        Addition operationAddition = new Addition();
+                        operationAddition.setExp1(this.opr);
+                        operationAddition.setExp2(this.opr2);
+                        operationAddition.CalculerSomme();
+                        this.Resultat = operationAddition.getSum();
+                        setOpr(this.Resultat);
+                        setOperation(digit);
+                        Expression.concat(" " + num + " = " + this.Resultat);
+                        setChanged();
+                        notifyObservers();
                         break;
                     case MINUS :
-                        this.Resultat = num;
-                        exp1 = this.Resultat;
-                        this.ChosenOperation = -1 ;
-//                        Soustraction OperationSoustraction = new Soustraction();
-//                        OperationSoustraction.setExp1(exp1);
-//                        typed = sc.nextLine();
-//                        exp2 = Integer.parseInt(typed);
-//                        OperationSoustraction.setExp2(Integer.parseInt(typed));
-//                        OperationSoustraction.CalculerSoustraction();
-//                        this.Resultat = OperationSoustraction.getSoustraction();
-//                        System.out.println(exp1 + "-" + exp2 + " = " + OperationSoustraction.getSoustraction());
-//                        System.out.println("Si vous voulez mettre fin a la calculatrice tapez 1 \n" +
-//                                "sinon tapez n'importe quel num");
-                        //OperationOuNonOperation = sc.nextInt();
+                        Soustraction operationSoustraction  = new Soustraction();
+                        operationSoustraction.setExp1(this.opr);
+                        operationSoustraction.setExp2(this.opr2);
+                        operationSoustraction.CalculerSoustraction();
+                        this.Resultat = operationSoustraction.getSoustraction();
+                        setOpr(this.Resultat);
+                        setOperation(digit);
+                        Expression.concat(" " + num + " = " + this.Resultat);
+                        setChanged();
+                        notifyObservers();
                         break;
-                    case EQUAL :
-                        if (this.ChosenOperation == 1){
-                            exp2 = num;
-                            Addition OperationAddition = new Addition();
-                            OperationAddition.setExp1(exp1);
-                            OperationAddition.setExp2(exp2);
-                            OperationAddition.CalculerSomme();
-                            this.Resultat = OperationAddition.getSum();
-                            return this.Resultat;
-                        }
-                        break;
-
                 }
+            }
 
+        }
 
-//        System.out.println("Au revoir !!");
+    }
 
-        return Integer.MIN_VALUE;
+    public void setOpr(int opr) {
+        this.opr = opr;
+    }
+
+    public void setOpr2(int opr2) {
+        this.opr2 = opr2;
+    }
+
+    public int getOperation() {
+        return operation;
+    }
+
+    public void setOperation(int operation) {
+        this.operation = operation;
+    }
+
+    @Override
+    public synchronized void addObserver(Observer o) {
+        super.addObserver(o);
+    }
+
+    @Override
+    public void notifyObservers() {
+        super.notifyObservers();
+    }
+
+    @Override
+    public synchronized void deleteObservers() {
+        super.deleteObservers();
+    }
+
+    @Override
+    protected synchronized void setChanged() {
+        super.setChanged();
     }
 
     public int getResultat() {
@@ -85,6 +138,10 @@ public class Calculette {
     }
 
     public void setResultat(int resultat) {
-        this.Resultat = resultat;
+        Resultat = resultat;
+    }
+
+    public String getExpression() {
+        return Expression;
     }
 }
